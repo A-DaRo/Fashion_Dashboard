@@ -1,0 +1,459 @@
+
+
+import pandas as pd
+from pathlib import Path
+DATA_PATH = Path("..") / "data" / 'visuelle2'
+
+customer_data = pd.read_csv(DATA_PATH / 'customer_data.csv')
+price_discount_series = pd.read_csv(DATA_PATH / 'price_discount_series.csv')
+restocks = pd.read_csv(DATA_PATH / 'restocks.csv')
+sales = pd.read_csv(DATA_PATH / 'sales.csv')
+vis2_gtrends_data = pd.read_csv(DATA_PATH / 'vis2_gtrends_data.csv')
+vis2_weather_data = pd.read_csv(DATA_PATH / 'vis2_weather_data.csv')
+
+customer_data
+
+customer_data.info()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 3184162 entries, 0 to 3184161
+Data columns (total 5 columns):
+ #   Column         Dtype 
+---  ------         ----- 
+ 0   customer       int64 
+ 1   retail         int64 
+ 2   external_code  int64 
+ 3   data           object
+ 4   qty            int64 
+dtypes: int64(4), object(1)
+memory usage: 121.5+ MB
+
+customer_data.head()
+
+customer 	retail 	external_code 	data 	qty
+1 	0 	940 	2017-06-10 12:41:57 	1
+1 	0 	718 	2017-06-10 12:41:57 	1
+1 	0 	825 	2017-06-10 12:54:11 	1
+2 	1 	471 	2017-08-03 11:37:27 	1
+2 	1 	613 	2017-08-03 11:37:27 	1
+
+customer_data.describe()
+
+	customer 	retail 	external_code 	qty
+count 	3.184162e+06 	3.184162e+06 	3.184162e+06 	3.184162e+06
+mean 	2.926050e+05 	3.980017e+01 	3.057014e+03 	1.015149e+00
+std 	1.835073e+05 	2.830189e+01 	1.601897e+03 	1.272581e-01
+min 	0.000000e+00 	0.000000e+00 	1.000000e+00 	1.000000e+00
+25% 	1.417840e+05 	1.700000e+01 	1.659000e+03 	1.000000e+00
+50% 	2.696890e+05 	3.500000e+01 	3.183000e+03 	1.000000e+00
+75% 	4.411958e+05 	5.600000e+01 	4.503000e+03 	1.000000e+00
+max 	6.670850e+05 	1.280000e+02 	5.577000e+03 	1.300000e+01
+
+price_discount_series
+
+price_discount_series.info()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 106850 entries, 0 to 106849
+Data columns (total 15 columns):
+ #   Column         Non-Null Count   Dtype  
+---  ------         --------------   -----  
+ 0   external_code  106850 non-null  int64  
+ 1   retail         106850 non-null  int64  
+ 2   0              106849 non-null  float64
+ 3   1              106850 non-null  float64
+ 4   2              106850 non-null  float64
+ 5   3              106850 non-null  float64
+ 6   4              106850 non-null  float64
+ 7   5              106850 non-null  float64
+ 8   6              106850 non-null  float64
+ 9   7              106850 non-null  float64
+ 10  8              106850 non-null  float64
+ 11  9              106850 non-null  float64
+ 12  10             106850 non-null  float64
+ 13  11             106850 non-null  float64
+ 14  price          106850 non-null  float64
+dtypes: float64(13), int64(2)
+memory usage: 12.2 MB
+
+price_discount_series.head()
+
+external_code 	retail 	0 	1 	2 	3 	4 	5 	6 	7 	8 	9 	10 	11 	price
+5 	36 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.054944
+2 	51 	0.5 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.2 	0.2 	0.054944
+5 	10 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.054944
+9 	41 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.043951
+5 	13 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.0 	0.054944
+
+price_discount_series.describe()
+
+	external_code 	retail 	0 	1 	2 	3 	4 	5 	6 	7 	8 	9 	10 	11 	price
+count 	106850.000000 	106850.000000 	106849.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000
+mean 	3108.302134 	41.349415 	0.022018 	0.023501 	0.026975 	0.035681 	0.048475 	0.068211 	0.090857 	0.116700 	0.146495 	0.179401 	0.210691 	0.239362 	0.082711
+std 	1593.085572 	28.040672 	0.074955 	0.075377 	0.081744 	0.095387 	0.111584 	0.132706 	0.152566 	0.172017 	0.192706 	0.212087 	0.228458 	0.240766 	0.037172
+min 	1.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.010971
+25% 	1721.000000 	18.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.054944
+50% 	3173.000000 	38.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.200000 	0.300000 	0.076931
+75% 	4592.750000 	62.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.050000 	0.200000 	0.300000 	0.300000 	0.300000 	0.300000 	0.400000 	0.087924
+max 	5577.000000 	125.000000 	0.880000 	0.880000 	0.800000 	0.880000 	0.880000 	0.880000 	0.880000 	0.880000 	0.880000 	0.900000 	0.910000 	0.920000 	0.571429
+
+restocks
+
+restocks.info()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 949766 entries, 0 to 949765
+Data columns (total 5 columns):
+ #   Column         Non-Null Count   Dtype
+---  ------         --------------   -----
+ 0   external_code  949766 non-null  int64
+ 1   retail         949766 non-null  int64
+ 2   week           949766 non-null  int64
+ 3   year           949766 non-null  int64
+ 4   qty            949766 non-null  int64
+dtypes: int64(5)
+memory usage: 36.2 MB
+
+restocks.head()
+
+external_code 	retail 	week 	year 	qty
+3642 	30 	50 	2018 	5
+3642 	30 	51 	2018 	6
+3642 	30 	1 	2019 	2
+3642 	30 	2 	2019 	3
+3642 	30 	4 	2019 	4
+
+restocks.describe()
+
+	external_code 	retail 	week 	year 	qty
+count 	949766.000000 	949766.000000 	949766.000000 	949766.000000 	949766.000000
+mean 	3068.711310 	43.261215 	28.083644 	2018.189321 	5.204682
+std 	1616.280605 	28.710344 	14.602329 	0.878331 	3.832166
+min 	1.000000 	0.000000 	1.000000 	2016.000000 	1.000000
+25% 	1689.000000 	19.000000 	16.000000 	2017.000000 	2.000000
+50% 	3194.000000 	41.000000 	28.000000 	2018.000000 	5.000000
+75% 	4532.000000 	64.000000 	41.000000 	2019.000000 	7.000000
+max 	5577.000000 	125.000000 	53.000000 	2022.000000 	104.000000
+
+sales
+
+sales.info()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 106850 entries, 0 to 106849
+Data columns (total 22 columns):
+ #   Column         Non-Null Count   Dtype  
+---  ------         --------------   -----  
+ 0   Unnamed: 0     106850 non-null  int64  
+ 1   external_code  106850 non-null  int64  
+ 2   retail         106850 non-null  int64  
+ 3   season         106850 non-null  object 
+ 4   category       106850 non-null  object 
+ 5   color          106850 non-null  object 
+ 6   image_path     106850 non-null  object 
+ 7   fabric         106850 non-null  object 
+ 8   release_date   106850 non-null  object 
+ 9   restock        106850 non-null  int64  
+ 10  0              106850 non-null  float64
+ 11  1              106850 non-null  float64
+ 12  2              106850 non-null  float64
+ 13  3              106850 non-null  float64
+ 14  4              106850 non-null  float64
+ 15  5              106850 non-null  float64
+ 16  6              106850 non-null  float64
+ 17  7              106850 non-null  float64
+ 18  8              106850 non-null  float64
+ 19  9              106850 non-null  float64
+ 20  10             106850 non-null  float64
+ 21  11             106850 non-null  float64
+dtypes: float64(12), int64(4), object(6)
+memory usage: 17.9+ MB
+
+sales.head()
+
+Unnamed: 0 	external_code 	retail 	season 	category 	color 	image_path 	fabric 	release_date 	restock 	... 	2 	3 	4 	5 	6 	7 	8 	9 	10 	11
+0 	5 	36 	SS17 	long sleeve 	grey 	PE17/00005.png 	acrylic 	2016-11-28 	22 	... 	1.0 	1.0 	2.0 	1.0 	0.0 	0.0 	2.0 	0.0 	0.0 	0.0
+1 	2 	51 	SS17 	long sleeve 	violet 	PE17/00002.png 	acrylic 	2016-11-28 	17 	... 	1.0 	0.0 	0.0 	2.0 	0.0 	0.0 	0.0 	1.0 	1.0 	0.0
+2 	5 	10 	SS17 	long sleeve 	grey 	PE17/00005.png 	acrylic 	2016-11-28 	15 	... 	1.0 	0.0 	1.0 	1.0 	1.0 	1.0 	1.0 	0.0 	0.0 	1.0
+3 	9 	41 	SS17 	culottes 	yellow 	PE17/00009.png 	scuba crepe 	2016-11-28 	32 	... 	1.0 	1.0 	0.0 	0.0 	0.0 	1.0 	0.0 	1.0 	0.0 	0.0
+4 	5 	13 	SS17 	long sleeve 	grey 	PE17/00005.png 	acrylic 	2016-11-28 	26 	... 	4.0 	0.0 	3.0 	0.0 	2.0 	1.0 	0.0 	0.0 	0.0 	0.0
+
+5 rows × 22 columns
+
+sales.describe()
+
+	Unnamed: 0 	external_code 	retail 	restock 	0 	1 	2 	3 	4 	5 	6 	7 	8 	9 	10 	11
+count 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000 	106850.000000
+mean 	53424.500000 	3108.302134 	41.349415 	22.436022 	1.825372 	1.500440 	1.448030 	1.456359 	1.423828 	1.409911 	1.343790 	1.200468 	1.050716 	0.895133 	0.763014 	0.648779
+std 	30845.082469 	1593.085572 	28.040672 	16.970656 	1.252241 	1.564483 	1.577184 	1.643756 	1.680707 	1.758441 	1.779213 	1.692647 	1.611809 	1.549376 	1.540595 	1.432452
+min 	0.000000 	1.000000 	0.000000 	1.000000 	0.000000 	0.000000 	0.000000 	0.000000 	-2.000000 	-3.000000 	0.000000 	0.000000 	0.000000 	-3.000000 	-2.000000 	0.000000
+25% 	26712.250000 	1721.000000 	18.000000 	13.000000 	1.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000
+50% 	53424.500000 	3173.000000 	38.000000 	18.000000 	1.000000 	1.000000 	1.000000 	1.000000 	1.000000 	1.000000 	1.000000 	1.000000 	1.000000 	0.000000 	0.000000 	0.000000
+75% 	80136.750000 	4592.750000 	62.000000 	26.000000 	2.000000 	2.000000 	2.000000 	2.000000 	2.000000 	2.000000 	2.000000 	2.000000 	1.000000 	1.000000 	1.000000 	1.000000
+max 	106849.000000 	5577.000000 	125.000000 	389.000000 	25.000000 	27.000000 	27.000000 	27.000000 	43.000000 	34.000000 	49.000000 	36.000000 	50.000000 	45.000000 	53.000000 	43.000000
+
+vis2_gtrends_data
+
+vis2_gtrends_data.info()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 220 entries, 0 to 219
+Data columns (total 97 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   date                   220 non-null    object 
+ 1   long sleeve            220 non-null    float64
+ 2   culottes               220 non-null    float64
+ 3   miniskirt              220 non-null    float64
+ 4   short sleeves          220 non-null    float64
+ 5   printed shirt          220 non-null    float64
+ 6   short cardigan         220 non-null    float64
+ 7   solid color top        220 non-null    float64
+ 8   trapeze dress          220 non-null    float64
+ 9   sleeveless             220 non-null    float64
+ 10  long cardigan          220 non-null    float64
+ 11  sheath dress           220 non-null    float64
+ 12  short coat             220 non-null    float64
+ 13  medium coat            220 non-null    float64
+ 14  doll dress             220 non-null    float64
+ 15  long dress             220 non-null    float64
+ 16  shorts                 220 non-null    float64
+ 17  long coat              220 non-null    float64
+ 18  jumpsuit               220 non-null    float64
+ 19  drop sleeve            220 non-null    float64
+ 20  patterned top          220 non-null    float64
+ 21  kimono dress           220 non-null    float64
+ 22  medium cardigan        220 non-null    float64
+ 23  shirt dress            220 non-null    float64
+ 24  maxi                   220 non-null    float64
+ 25  capris                 220 non-null    float64
+ 26  gitana skirt           220 non-null    float64
+ 27  long duster            220 non-null    float64
+ 28  yellow                 220 non-null    int64  
+ 29  brown                  220 non-null    int64  
+ 30  blue                   220 non-null    int64  
+ 31  grey                   220 non-null    int64  
+ 32  green                  220 non-null    int64  
+ 33  black                  220 non-null    int64  
+ 34  red                    220 non-null    int64  
+ 35  white                  220 non-null    int64  
+ 36  orange                 220 non-null    int64  
+ 37  violet                 220 non-null    int64  
+ 38  acrylic                220 non-null    int64  
+ 39  scuba crepe            220 non-null    int64  
+ 40  tulle                  220 non-null    int64  
+ 41  angora                 220 non-null    int64  
+ 42  faux leather           220 non-null    int64  
+ 43  georgette              220 non-null    int64  
+ 44  lurex                  220 non-null    int64  
+ 45  nice                   220 non-null    int64  
+ 46  crepe                  220 non-null    int64  
+ 47  satin cotton           220 non-null    int64  
+ 48  silky satin            220 non-null    int64  
+ 49  fur                    220 non-null    int64  
+ 50  matte jersey           220 non-null    int64  
+ 51  plisse                 220 non-null    int64  
+ 52  velvet                 220 non-null    int64  
+ 53  lace                   220 non-null    int64  
+ 54  cotton                 220 non-null    int64  
+ 55  piquet                 220 non-null    int64  
+ 56  plush                  220 non-null    int64  
+ 57  bengaline              220 non-null    int64  
+ 58  jacquard               220 non-null    int64  
+ 59  frise                  220 non-null    int64  
+ 60  technical              220 non-null    int64  
+ 61  cady                   220 non-null    int64  
+ 62  dark jeans             220 non-null    int64  
+ 63  light jeans            220 non-null    int64  
+ 64  ity                    220 non-null    int64  
+ 65  plumetis               220 non-null    int64  
+ 66  polyviscous            220 non-null    float64
+ 67  dainetto               220 non-null    int64  
+ 68  webbing                220 non-null    int64  
+ 69  foam rubber            220 non-null    int64  
+ 70  chanel                 220 non-null    int64  
+ 71  marocain               220 non-null    int64  
+ 72  macrame                220 non-null    int64  
+ 73  embossed               220 non-null    int64  
+ 74  heavy jeans            220 non-null    int64  
+ 75  nylon                  220 non-null    int64  
+ 76  tencel                 220 non-null    int64  
+ 77  paillettes             220 non-null    int64  
+ 78  chambree               220 non-null    int64  
+ 79  chine crepe            220 non-null    int64  
+ 80  muslin cotton or silk  220 non-null    float64
+ 81  linen                  220 non-null    int64  
+ 82  tactel                 220 non-null    int64  
+ 83  viscose twill          220 non-null    int64  
+ 84  cloth                  220 non-null    int64  
+ 85  mohair                 220 non-null    int64  
+ 86  mutton                 220 non-null    int64  
+ 87  scottish               220 non-null    int64  
+ 88  milano stitch          220 non-null    int64  
+ 89  devore                 220 non-null    int64  
+ 90  hron                   220 non-null    int64  
+ 91  ottoman                220 non-null    int64  
+ 92  fluid                  220 non-null    int64  
+ 93  flamed                 220 non-null    int64  
+ 94  fluid polyviscous      220 non-null    float64
+ 95  shiny jersey           220 non-null    int64  
+ 96  goose                  220 non-null    int64  
+dtypes: float64(30), int64(66), object(1)
+memory usage: 166.8+ KB
+
+vis2_gtrends_data.head()
+
+date 	long sleeve 	culottes 	miniskirt 	short sleeves 	printed shirt 	short cardigan 	solid color top 	trapeze dress 	sleeveless 	... 	scottish 	milano stitch 	devore 	hron 	ottoman 	fluid 	flamed 	fluid polyviscous 	shiny jersey 	goose
+2015-10-05 	55.0 	41.0 	66.0 	58.0 	58.0 	22.0 	24.0 	43.0 	66.0 	... 	57 	0 	29 	17 	57 	80 	49 	-1.0 	0 	34
+2015-10-12 	55.0 	44.0 	73.0 	71.0 	61.0 	31.0 	37.0 	21.2 	63.0 	... 	54 	0 	17 	14 	61 	80 	41 	-1.0 	0 	39
+2015-10-19 	60.0 	42.0 	73.0 	62.0 	61.0 	43.0 	37.0 	27.4 	47.0 	... 	55 	0 	21 	23 	63 	79 	52 	-1.0 	33 	41
+2015-10-26 	57.0 	44.0 	68.0 	51.0 	55.0 	19.0 	37.0 	59.8 	54.0 	... 	55 	0 	26 	14 	58 	76 	33 	-1.0 	32 	37
+2015-11-02 	49.0 	39.0 	66.0 	39.0 	63.0 	16.0 	37.0 	44.0 	51.0 	... 	55 	0 	18 	18 	60 	80 	37 	-1.0 	98 	38
+
+5 rows × 97 columns
+
+vis2_gtrends_data.describe()
+
+	long sleeve 	culottes 	miniskirt 	short sleeves 	printed shirt 	short cardigan 	solid color top 	trapeze dress 	sleeveless 	long cardigan 	... 	scottish 	milano stitch 	devore 	hron 	ottoman 	fluid 	flamed 	fluid polyviscous 	shiny jersey 	goose
+count 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	... 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.0 	220.000000 	220.000000
+mean 	59.245455 	57.295455 	45.681818 	63.050000 	65.859091 	46.090909 	32.368182 	37.160909 	71.095455 	60.450000 	... 	62.150000 	10.754545 	23.845455 	20.281818 	69.627273 	84.127273 	45.063636 	-1.0 	13.945455 	37.386364
+std 	14.786880 	13.159679 	12.113189 	12.943581 	4.781353 	15.600635 	20.153201 	17.602691 	10.823827 	15.123004 	... 	6.265091 	19.207678 	8.707511 	6.503433 	7.321525 	5.195026 	13.343565 	0.0 	20.915501 	12.106860
+min 	37.000000 	35.000000 	25.000000 	27.000000 	50.000000 	16.000000 	0.000000 	6.000000 	47.000000 	27.000000 	... 	51.000000 	0.000000 	12.000000 	6.000000 	52.000000 	67.000000 	19.000000 	-1.0 	0.000000 	23.000000
+25% 	48.000000 	48.000000 	37.000000 	53.750000 	63.000000 	35.000000 	20.000000 	23.350000 	63.000000 	50.000000 	... 	58.000000 	0.000000 	20.000000 	16.000000 	65.000000 	81.000000 	35.750000 	-1.0 	0.000000 	28.000000
+50% 	55.000000 	54.000000 	43.000000 	62.000000 	66.000000 	44.500000 	26.000000 	34.500000 	69.000000 	58.000000 	... 	61.000000 	0.000000 	23.000000 	20.000000 	70.000000 	84.500000 	44.000000 	-1.0 	0.000000 	33.000000
+75% 	67.250000 	64.000000 	53.000000 	72.000000 	68.000000 	56.000000 	45.000000 	49.400000 	78.250000 	72.000000 	... 	65.000000 	31.250000 	26.000000 	24.000000 	74.250000 	88.000000 	54.000000 	-1.0 	30.000000 	42.000000
+max 	100.000000 	100.000000 	100.000000 	100.000000 	100.000000 	100.000000 	100.000000 	93.600000 	100.000000 	100.000000 	... 	100.000000 	100.000000 	100.000000 	48.000000 	89.000000 	100.000000 	100.000000 	-1.0 	100.000000 	100.000000
+
+8 rows × 96 columns
+
+vis2_weather_data
+
+vis2_gtrends_data.info()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 220 entries, 0 to 219
+Data columns (total 97 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   date                   220 non-null    object 
+ 1   long sleeve            220 non-null    float64
+ 2   culottes               220 non-null    float64
+ 3   miniskirt              220 non-null    float64
+ 4   short sleeves          220 non-null    float64
+ 5   printed shirt          220 non-null    float64
+ 6   short cardigan         220 non-null    float64
+ 7   solid color top        220 non-null    float64
+ 8   trapeze dress          220 non-null    float64
+ 9   sleeveless             220 non-null    float64
+ 10  long cardigan          220 non-null    float64
+ 11  sheath dress           220 non-null    float64
+ 12  short coat             220 non-null    float64
+ 13  medium coat            220 non-null    float64
+ 14  doll dress             220 non-null    float64
+ 15  long dress             220 non-null    float64
+ 16  shorts                 220 non-null    float64
+ 17  long coat              220 non-null    float64
+ 18  jumpsuit               220 non-null    float64
+ 19  drop sleeve            220 non-null    float64
+ 20  patterned top          220 non-null    float64
+ 21  kimono dress           220 non-null    float64
+ 22  medium cardigan        220 non-null    float64
+ 23  shirt dress            220 non-null    float64
+ 24  maxi                   220 non-null    float64
+ 25  capris                 220 non-null    float64
+ 26  gitana skirt           220 non-null    float64
+ 27  long duster            220 non-null    float64
+ 28  yellow                 220 non-null    int64  
+ 29  brown                  220 non-null    int64  
+ 30  blue                   220 non-null    int64  
+ 31  grey                   220 non-null    int64  
+ 32  green                  220 non-null    int64  
+ 33  black                  220 non-null    int64  
+ 34  red                    220 non-null    int64  
+ 35  white                  220 non-null    int64  
+ 36  orange                 220 non-null    int64  
+ 37  violet                 220 non-null    int64  
+ 38  acrylic                220 non-null    int64  
+ 39  scuba crepe            220 non-null    int64  
+ 40  tulle                  220 non-null    int64  
+ 41  angora                 220 non-null    int64  
+ 42  faux leather           220 non-null    int64  
+ 43  georgette              220 non-null    int64  
+ 44  lurex                  220 non-null    int64  
+ 45  nice                   220 non-null    int64  
+ 46  crepe                  220 non-null    int64  
+ 47  satin cotton           220 non-null    int64  
+ 48  silky satin            220 non-null    int64  
+ 49  fur                    220 non-null    int64  
+ 50  matte jersey           220 non-null    int64  
+ 51  plisse                 220 non-null    int64  
+ 52  velvet                 220 non-null    int64  
+ 53  lace                   220 non-null    int64  
+ 54  cotton                 220 non-null    int64  
+ 55  piquet                 220 non-null    int64  
+ 56  plush                  220 non-null    int64  
+ 57  bengaline              220 non-null    int64  
+ 58  jacquard               220 non-null    int64  
+ 59  frise                  220 non-null    int64  
+ 60  technical              220 non-null    int64  
+ 61  cady                   220 non-null    int64  
+ 62  dark jeans             220 non-null    int64  
+ 63  light jeans            220 non-null    int64  
+ 64  ity                    220 non-null    int64  
+ 65  plumetis               220 non-null    int64  
+ 66  polyviscous            220 non-null    float64
+ 67  dainetto               220 non-null    int64  
+ 68  webbing                220 non-null    int64  
+ 69  foam rubber            220 non-null    int64  
+ 70  chanel                 220 non-null    int64  
+ 71  marocain               220 non-null    int64  
+ 72  macrame                220 non-null    int64  
+ 73  embossed               220 non-null    int64  
+ 74  heavy jeans            220 non-null    int64  
+ 75  nylon                  220 non-null    int64  
+ 76  tencel                 220 non-null    int64  
+ 77  paillettes             220 non-null    int64  
+ 78  chambree               220 non-null    int64  
+ 79  chine crepe            220 non-null    int64  
+ 80  muslin cotton or silk  220 non-null    float64
+ 81  linen                  220 non-null    int64  
+ 82  tactel                 220 non-null    int64  
+ 83  viscose twill          220 non-null    int64  
+ 84  cloth                  220 non-null    int64  
+ 85  mohair                 220 non-null    int64  
+ 86  mutton                 220 non-null    int64  
+ 87  scottish               220 non-null    int64  
+ 88  milano stitch          220 non-null    int64  
+ 89  devore                 220 non-null    int64  
+ 90  hron                   220 non-null    int64  
+ 91  ottoman                220 non-null    int64  
+ 92  fluid                  220 non-null    int64  
+ 93  flamed                 220 non-null    int64  
+ 94  fluid polyviscous      220 non-null    float64
+ 95  shiny jersey           220 non-null    int64  
+ 96  goose                  220 non-null    int64  
+dtypes: float64(30), int64(66), object(1)
+memory usage: 166.8+ KB
+
+vis2_weather_data.head()
+
+locality 	date 	avg temp °C 	min temp °C 	max temp °C 	dew point °C 	humidity % 	visibility km 	avg wind km/h 	max wind km/h 	gust km/h 	slm pressure mb 	avg pressure mb 	rain mm
+8 	1/1/2016 	6.0 	2.0 	11.0 	2.0 	69.0 	10.0 	9.0 	13.0 	0.0 	1026.0 	0.0 	0.0
+8 	2/1/2016 	9.0 	2.0 	14.0 	5.0 	69.0 	10.0 	11.0 	17.0 	0.0 	1020.0 	0.0 	0.0
+8 	3/1/2016 	12.0 	8.0 	15.0 	10.0 	86.0 	9.0 	12.0 	22.0 	52.0 	1007.0 	0.0 	0.0
+8 	4/1/2016 	11.0 	6.0 	14.0 	8.0 	85.0 	9.0 	10.0 	17.0 	0.0 	1001.0 	0.0 	0.0
+8 	5/1/2016 	13.0 	10.0 	16.0 	11.0 	86.0 	9.0 	10.0 	19.0 	0.0 	1001.0 	0.0 	0.0
+
+vis2_gtrends_data.describe()
+
+	long sleeve 	culottes 	miniskirt 	short sleeves 	printed shirt 	short cardigan 	solid color top 	trapeze dress 	sleeveless 	long cardigan 	... 	scottish 	milano stitch 	devore 	hron 	ottoman 	fluid 	flamed 	fluid polyviscous 	shiny jersey 	goose
+count 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	... 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.000000 	220.0 	220.000000 	220.000000
+mean 	59.245455 	57.295455 	45.681818 	63.050000 	65.859091 	46.090909 	32.368182 	37.160909 	71.095455 	60.450000 	... 	62.150000 	10.754545 	23.845455 	20.281818 	69.627273 	84.127273 	45.063636 	-1.0 	13.945455 	37.386364
+std 	14.786880 	13.159679 	12.113189 	12.943581 	4.781353 	15.600635 	20.153201 	17.602691 	10.823827 	15.123004 	... 	6.265091 	19.207678 	8.707511 	6.503433 	7.321525 	5.195026 	13.343565 	0.0 	20.915501 	12.106860
+min 	37.000000 	35.000000 	25.000000 	27.000000 	50.000000 	16.000000 	0.000000 	6.000000 	47.000000 	27.000000 	... 	51.000000 	0.000000 	12.000000 	6.000000 	52.000000 	67.000000 	19.000000 	-1.0 	0.000000 	23.000000
+25% 	48.000000 	48.000000 	37.000000 	53.750000 	63.000000 	35.000000 	20.000000 	23.350000 	63.000000 	50.000000 	... 	58.000000 	0.000000 	20.000000 	16.000000 	65.000000 	81.000000 	35.750000 	-1.0 	0.000000 	28.000000
+50% 	55.000000 	54.000000 	43.000000 	62.000000 	66.000000 	44.500000 	26.000000 	34.500000 	69.000000 	58.000000 	... 	61.000000 	0.000000 	23.000000 	20.000000 	70.000000 	84.500000 	44.000000 	-1.0 	0.000000 	33.000000
+75% 	67.250000 	64.000000 	53.000000 	72.000000 	68.000000 	56.000000 	45.000000 	49.400000 	78.250000 	72.000000 	... 	65.000000 	31.250000 	26.000000 	24.000000 	74.250000 	88.000000 	54.000000 	-1.0 	30.000000 	42.000000
+max 	100.000000 	100.000000 	100.000000 	100.000000 	100.000000 	100.000000 	100.000000 	93.600000 	100.000000 	100.000000 	... 	100.000000 	100.000000 	100.000000 	48.000000 	89.000000 	100.000000 	100.000000 	-1.0 	100.000000 	100.000000
+
+8 rows × 96 columns

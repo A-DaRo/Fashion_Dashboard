@@ -1,0 +1,10 @@
+dash==2.14.0
+dash-bootstrap-components==1.5.0
+plotly==5.18.0
+pandas==2.0.3 # Or your specific version
+numpy==1.26.2
+torch==2.1.1 # Or CPU version
+scikit-learn==1.3.2
+python-dateutil==2.8.2
+gunicorn==21.2.0
+Pillow==10.1.0 # For image operations if any; good to have for assets

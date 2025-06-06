@@ -1,0 +1,71 @@
+file tree composition of data and models directory:
+visuelle2/
+│   category_labels.pt
+│   color_labels.pt
+│   customer_data.csv
+│   fabric_labels.pt
+│   price_discount_series.csv
+│   restocks.csv
+│   sales.csv
+│   shop_weather_pairs.pt
+│   stfore_sales_norm_scalar.npy
+│   stfore_test.csv
+│   stfore_train.csv
+│   vis2_gtrends_data.csv
+│   vis2_weather_data.csv
+│
+└───images
+    ├───AI17
+    │       00955.png
+    │		   	  .
+    │		   	  .
+    │		   	  .
+    │       01897.png
+    │
+    ├───AI18
+    │       02576.png
+    │		   	  .
+    │		   	  .
+    │		   	  .
+    │       03633.png
+    │
+    ├───AI19
+    │       03909.png
+    │		   	  .
+    │		   	  .
+    │		   	  .
+    │       05577.png
+    │
+    ├───PE17
+    │       00001.png
+    │		   	  .
+    │		   	  .
+    │		   	  .
+    │       00954.png
+    │
+    ├───PE18
+    │       01680.png
+    │		   	  .
+    │		   	  .
+    │		   	  .
+    │       02680.png
+    │
+    └───PE19
+            03568.png
+		.
+		.
+		.
+            05330.png
+
+
+
+
+Given the research paper: 'Well Googled is Half Done: Multimodal Forecasting of New Fashion Product Sales with Image-based Google Trends' as attached pdf. And the provided file tree composition of the directory containing the data and models discussed in the paper.
+
+Elaborate on how a python dash dashboard should look like (layout) which plots it should contain and which callback for the following described goal. (provide a full repository structure and for each file a brief description before going into the specific detail of the dashboard content and functionalities)
+
+Goal:
+We are Intellistock a startup focused on Sales forecasting for SME clothing stores and soon we will do a pitch presentation for our potential angel investors. In order to provide a first minimum viable product without owning any potential customer data we would like to demonstrate our product (dash dashboard) using existing data from the research 'Well Googled is Half Done: Multimodal Forecasting of New Fashion Product Sales with Image-based Google Trends'.
+Our dashboard should provide valuable insights specifically on the topic of optimizing restocking and improving brand image via targeted advertisement and trend forecasting.
+
+For context attached is also our lean canvas startup model.

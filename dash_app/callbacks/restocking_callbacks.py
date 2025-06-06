@@ -1,106 +1,91 @@
-# dash_app/callbacks/restocking_callbacks.py
-
-from dash import Input, Output, html, dcc, State
+from dash import Input, Output, html, dcc
 import dash_bootstrap_components as dbc
 import os
 import pandas as pd
 
-# DO NOT import app here like: from dash_app.app import app
-# We will pass the app object in.
-
-from utils.data_loader import get_sales_df
+from utils.data_loader import get_sales_df, get_restock_df, get_price_df
+from utils.data_processing import compute_weekly_sales_timeseries, map_restock_to_lifecycle
+from components.charts import make_sales_restock_figure
+from components.cards import kpi_card
 from config import IMAGE_ASSET_SUBPATH, ASSETS_DIR
 
 # Load data once at app startup
 sales_df = get_sales_df()
-print("--- DEBUG: Sales DataFrame loaded (callbacks module) ---")
-if not sales_df.empty:
-    print(sales_df.head())
-else:
-    print("Sales DataFrame is EMPTY after loading (callbacks module).")
-print("--- END DEBUG: Sales DataFrame loaded (callbacks module) ---")
+restocks_df_full = get_restock_df()
+price_df_full = get_price_df()
 
+print("--- DEBUG: Sales, Restocks, Price DFs loaded (restocking_callbacks module) ---")
+if sales_df.empty or restocks_df_full.empty or price_df_full.empty:
+    print("Warning: One or more essential DataFrames are empty after loading!")
 
-def register_restocking_callbacks(app): # <-- Accept app as an argument
+def register_restocking_callbacks(app_instance): # Changed app to app_instance to avoid conflict if app is global
     print("--- DEBUG: Registering restocking_callbacks ---")
 
-    @app.callback( # Use the passed-in app instance
+    @app_instance.callback(
         Output("product-dropdown-restock", "options"),
         [Input("product-dropdown-restock", "id")]
     )
     def populate_product_dropdown_options(dropdown_id):
-        print(f"--- DEBUG populate_product_dropdown_options: Triggered by component ID: {dropdown_id} ---")
+        # print(f"--- DEBUG populate_product_dropdown_options: Triggered by component ID: {dropdown_id} ---")
         if not sales_df.empty:
             unique_products = sales_df.drop_duplicates(subset=['external_code'])
             product_options_list = [
-                {"label": f"{row['category']} ({row['external_code']})", "value": str(row['external_code'])}
+                {"label": f"{row.get('category', 'N/A')} ({row['external_code']})", "value": str(row['external_code'])}
                 for index, row in unique_products.iterrows()
             ]
-            print(f"--- DEBUG populate_product_dropdown_options: Generated {len(product_options_list)} options. First few: {product_options_list[:3]} ---")
+            # print(f"--- DEBUG populate_product_dropdown_options: Generated {len(product_options_list)} options. ---")
             return product_options_list
-        print("--- DEBUG populate_product_dropdown_options: Sales_df empty or other issue, returning empty options list ---")
+        # print("--- DEBUG populate_product_dropdown_options: Sales_df empty, returning empty options list ---")
         return []
 
-    @app.callback( # Use the passed-in app instance
+    @app_instance.callback(
         [Output("product-image-restock", "children"),
          Output("product-details-restock", "children"),
-         Output("sales-restock-plot", "figure")],
+         Output("sales-restock-plot", "figure"),
+         Output("kpi-output-restock", "children")],
         [Input("product-dropdown-restock", "value")]
     )
     def update_restock_tab(selected_external_code_str):
-        print(f"\n--- DEBUG update_restock_tab: selected_external_code_str = '{selected_external_code_str}' ---")
+        # print(f"\n--- DEBUG update_restock_tab: selected_external_code_str = '{selected_external_code_str}' ---")
+        no_selection_outputs = (
+            html.Div("Select a product to see details.", className="text-muted p-3"), 
+            "", 
+            make_sales_restock_figure("", 0, [0]*12, pd.DataFrame(), None), # Empty chart
+            ""
+        )
         if not selected_external_code_str:
-            print("--- DEBUG update_restock_tab: No product selected, returning defaults. ---")
-            return html.Div("Select a product to see details.", className="text-muted p-3"), "", {}
+            return no_selection_outputs
 
         try:
             selected_external_code = int(selected_external_code_str)
-            print(f"--- DEBUG update_restock_tab: Parsed selected_external_code = {selected_external_code} ---")
         except ValueError:
-            print(f"--- DEBUG update_restock_tab: ValueError parsing '{selected_external_code_str}', returning error message. ---")
-            return html.Div("Invalid product selection.", className="text-danger p-3"), "", {}
+            return (html.Div("Invalid product selection.", className="text-danger p-3"), "", 
+                    make_sales_restock_figure("", 0, [0]*12, pd.DataFrame(), None), "")
 
         if sales_df.empty:
-            print("--- DEBUG update_restock_tab: Sales DataFrame is empty, returning warning. ---")
-            return html.Div("Sales data is not available.", className="text-warning p-3"), "", {}
+            return (html.Div("Sales data is not available.", className="text-warning p-3"), "", 
+                    make_sales_restock_figure("", 0, [0]*12, pd.DataFrame(), None), "")
 
         product_row_series = sales_df[sales_df['external_code'] == selected_external_code]
-        print(f"--- DEBUG update_restock_tab: Found {len(product_row_series)} rows for code {selected_external_code}. ---")
-
         if product_row_series.empty:
-            print(f"--- DEBUG update_restock_tab: Product with code {selected_external_code} not found in sales_df. ---")
-            return html.Div(f"Product with code {selected_external_code} not found.", className="text-danger p-3"), "", {}
+            return (html.Div(f"Product with code {selected_external_code} not found.", className="text-danger p-3"), "", 
+                    make_sales_restock_figure("", 0, [0]*12, pd.DataFrame(), None), "")
         
         product_row = product_row_series.iloc[0]
-        print(f"--- DEBUG update_restock_tab: Product row data: \n{product_row.to_string()} ---")
 
-        # 1. Product Image
-        image_element = html.Div("Image not available (initial state)", className="text-muted")
+        # Image
+        image_element = html.Div("Image not available", className="text-muted")
         raw_image_path_from_csv = product_row.get("image_path")
-        print(f"--- DEBUG update_restock_tab: Raw image_path from CSV = '{raw_image_path_from_csv}' ---")
-
         if pd.notna(raw_image_path_from_csv) and raw_image_path_from_csv.strip() != "":
             dash_asset_relative_path = os.path.join(IMAGE_ASSET_SUBPATH, raw_image_path_from_csv)
-            print(f"--- DEBUG update_restock_tab: Constructed Dash asset relative path = '{dash_asset_relative_path}' ---")
-            
-            # Use the app instance passed to register_restocking_callbacks
-            img_url = app.get_asset_url(dash_asset_relative_path)
-            print(f"--- DEBUG update_restock_tab: Generated img_url for <img> tag = '{img_url}' ---")
-            
+            img_url = app_instance.get_asset_url(dash_asset_relative_path) # Use app_instance
             physical_image_path = os.path.join(ASSETS_DIR, dash_asset_relative_path)
-            print(f"--- DEBUG update_restock_tab: Expected physical image path on server = '{physical_image_path}' ---")
-
             if os.path.exists(physical_image_path):
-                print(f"--- DEBUG update_restock_tab: SUCCESS - Physical file FOUND at: {physical_image_path} ---")
                 image_element = html.Img(src=img_url, className="product-image-restock")
             else:
-                print(f"--- DEBUG update_restock_tab: ERROR - Physical file NOT FOUND at: {physical_image_path} ---")
-                image_element = html.Div(f"Image file not found on server. Expected: ...{physical_image_path[-70:]}", className="text-danger")
-        else:
-            print(f"--- DEBUG update_restock_tab: image_path in CSV is NaN or empty. ---")
-            image_element = html.Div("Image path not specified in data.", className="text-muted")
+                image_element = html.Div(f"Img file not found.", className="text-danger small")
         
-        # 2. Product Details
+        # Details
         details_list = [
             html.Strong("Category: "), html.Span(f"{product_row.get('category', 'N/A')}"), html.Br(),
             html.Strong("Color: "), html.Span(f"{product_row.get('color', 'N/A')}"), html.Br(),
@@ -113,20 +98,34 @@ def register_restocking_callbacks(app): # <-- Accept app as an argument
         ]
         details_card = dbc.Card(dbc.CardBody(details_list))
 
-        # 3. Sales Plot Figure (Empty for this "MUST HAVE" MVP)
-        sales_figure = {
-            'layout': {
-                'title': 'Sales & Restock Chart (Data coming in next phase)',
-                'xaxis': {'visible': False},
-                'yaxis': {'visible': False},
-                'annotations': [{
-                    'text': 'Chart data will be displayed here.',
-                    'xref': 'paper',
-                    'yref': 'paper',
-                    'showarrow': False,
-                    'font': {'size': 14}
-                }]
-            }
-        }
-        print(f"--- DEBUG update_restock_tab: Returning image_element, details_card, sales_figure. ---")
-        return image_element, details_card, sales_figure
+        # Sales Time Series & Mapped Restocks
+        sales_ts = compute_weekly_sales_timeseries(product_row)
+        product_restocks_lc = map_restock_to_lifecycle(restocks_df_full, product_row)
+        
+        # Price/Discount Info
+        product_price_rows = price_df_full[
+            (price_df_full['external_code'] == product_row['external_code']) &
+            (price_df_full['retail'] == product_row['retail'])
+        ]
+        current_product_price_info = product_price_rows.iloc[0] if not product_price_rows.empty else None
+
+        sales_figure = make_sales_restock_figure(
+            str(product_row['external_code']), 
+            product_row.get('retail', 0), 
+            sales_ts, 
+            product_restocks_lc, 
+            current_product_price_info
+        )
+
+        # KPIs
+        total_sales_val = sum(sales_ts)
+        avg_weekly_sales_val = total_sales_val / 12 if sales_ts and sum(sales_ts) > 0 else 0.0 # Avoid div by zero if sales_ts is all zeros
+        total_restocked_val = product_restocks_lc['qty'].sum() if not product_restocks_lc.empty else 0
+
+        kpi_cards_layout = dbc.Row([
+            kpi_card("Total Sales (12wk)", f"{total_sales_val:.0f} units", "fas fa-shopping-cart", col_md_width=4),
+            kpi_card("Avg. Weekly Sales", f"{avg_weekly_sales_val:.1f} units", "fas fa-calendar-alt", col_md_width=4),
+            kpi_card("Total Restocked", f"{total_restocked_val:.0f} units", "fas fa-box-open", col_md_width=4)
+        ], className="justify-content-center") # Center the row of cards
+        
+        return image_element, details_card, sales_figure, kpi_cards_layout

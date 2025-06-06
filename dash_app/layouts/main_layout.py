@@ -1,8 +1,9 @@
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-from layouts.restocking_layout import restocking_tab_content # Renamed for clarity
+from layouts.restocking_layout import restocking_tab_content
+from layouts.brand_layout import brand_tab_content # Import new layout
 
-def layout(app_instance): # Pass app object to use app.get_asset_url
+def layout(app_instance):
     return dbc.Container([
         dbc.Row([
             dbc.Col(
@@ -20,13 +21,10 @@ def layout(app_instance): # Pass app object to use app.get_asset_url
                 tab_id="tab-restocking",
                 children=restocking_tab_content
             ),
-            dbc.Tab(
+            dbc.Tab( # Modified to use the new brand_tab_content
                 label="Brand & Trend Strategy",
                 tab_id="tab-brand",
-                children=html.Div(
-                    "Brand & Trend Strategy Content Coming Soon in the Next Phase!",
-                    className="p-4"
-                )
+                children=brand_tab_content
             ),
         ])
-    ], fluid=True)
+    ], fluid=True, className="pt-3") # Added some padding top to the main container

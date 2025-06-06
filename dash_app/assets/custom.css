@@ -1,27 +1,36 @@
+/* dash_app/assets/custom.css */
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 15px;
   background-color: #f8f9fa;
-}
-
-.logo-img {
-  max-height: 50px;
-  margin-right: 15px;
 }
 
 .app-header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 15px;
+  padding-bottom: 15px; 
+  /* Consider slightly increasing padding-bottom if the logo gets much taller */
+  /* padding-bottom: 20px; */
   border-bottom: 1px solid #dee2e6;
 }
 
-.app-title {
-  font-size: 1.8rem;
-  font-weight: 300;
+.logo-img {
+  max-height: 55px; /* << SIGNIFICANTLY INCREASED (e.g., from 40px to 55px) */
+  /* Try values between 50px and 60px */
+  margin-right: 15px; /* Increased margin slightly to give more space */
 }
+
+.app-title {
+  font-size: 1.6rem;  /* Optionally, slightly increase title font if logo is much bigger */
+  /* font-size: 1.5rem; */ 
+  font-weight: 300;
+  margin-bottom: 0; 
+}
+
+/* ... (rest of your CSS remains the same) ... */
 
 /* Styles for product image and details */
 .product-image-container {
@@ -41,20 +50,19 @@ body {
   margin-bottom: 0.5rem;
 }
 
-.form-label { /* Style for labels above dropdowns/datepickers */
+.form-label {
   display: block;
   margin-bottom: 0.25rem;
   font-weight: 500;
 }
 
-.dcc-loading { /* Style for dcc.Loading component */
+.dcc-loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px; /* Ensure loading spinner has some space */
+  min-height: 200px;
 }
 
-/* Style for checklist items to be more clickable */
 .checklist-item label {
     display: flex;
     align-items: center;
@@ -65,7 +73,11 @@ body {
     cursor: pointer;
 }
 
-/* Ensure graphs in product trend comparison are responsive */
 #product-trend-comparison .dash-graph {
-    height: 300px !important; /* Or use responsive height settings */
+    height: 300px !important;
+}
+
+.nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
 }

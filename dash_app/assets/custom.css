@@ -40,3 +40,32 @@ body {
 .product-details-card .card-body p {
   margin-bottom: 0.5rem;
 }
+
+.form-label { /* Style for labels above dropdowns/datepickers */
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.dcc-loading { /* Style for dcc.Loading component */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px; /* Ensure loading spinner has some space */
+}
+
+/* Style for checklist items to be more clickable */
+.checklist-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.checklist-item input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+/* Ensure graphs in product trend comparison are responsive */
+#product-trend-comparison .dash-graph {
+    height: 300px !important; /* Or use responsive height settings */
+}

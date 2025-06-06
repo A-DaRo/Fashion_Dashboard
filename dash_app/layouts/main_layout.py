@@ -1,7 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from layouts.restocking_layout import restocking_tab_content
-from layouts.brand_layout import brand_tab_content # Import new layout
+from layouts.brand_layout import brand_tab_content
+from layouts.weather_layout import weather_tab_content # New import
 
 def layout(app_instance):
     return dbc.Container([
@@ -21,10 +22,15 @@ def layout(app_instance):
                 tab_id="tab-restocking",
                 children=restocking_tab_content
             ),
-            dbc.Tab( # Modified to use the new brand_tab_content
+            dbc.Tab(
                 label="Brand & Trend Strategy",
                 tab_id="tab-brand",
                 children=brand_tab_content
             ),
+            dbc.Tab( # New Weather Tab
+                label="Weather Insights",
+                tab_id="tab-weather",
+                children=weather_tab_content # Use the imported layout
+            ),
         ])
-    ], fluid=True, className="pt-3") # Added some padding top to the main container
+    ], fluid=True, className="pt-3")
